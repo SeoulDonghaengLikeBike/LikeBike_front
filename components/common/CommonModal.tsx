@@ -4,12 +4,14 @@ interface CommonModalProps {
   modalIsOpen: boolean;
   hasBackdrop?: boolean;
   children: React.ReactNode;
+  fullHeight?: boolean;
 }
 
 const CommonModal = ({
   modalIsOpen,
   hasBackdrop,
   children,
+  fullHeight,
 }: CommonModalProps) => {
   return (
     <ReactModal
@@ -25,7 +27,7 @@ const CommonModal = ({
           zIndex: 40,
           width: "80%",
           maxWidth: "400px",
-          height: "auto",
+          height: fullHeight ? "80vh" : "auto",
           padding: "1rem",
           paddingTop: "1.5rem",
           boxShadow: "0 0 4px 0 rgba(0, 0, 0, 0.5)",

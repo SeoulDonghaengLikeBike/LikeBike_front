@@ -3,6 +3,7 @@
 import ButtonModal from "@/components/common/ButtonModal";
 import BikeLogMain from "@/components/main/BikeLogMain";
 import CourseMain from "@/components/main/CourseMain";
+import MainBase from "@/components/main/MainBase";
 import NewsMain from "@/components/main/NewsMain";
 import QuizMain from "@/components/main/QuizMain";
 import RewardMain from "@/components/main/RewardMain";
