@@ -12,9 +12,11 @@ export const getQuiz: () => Promise<IQuiz | undefined> = async () => {
 
     const data = res?.data?.data;
 
-    const quiz: IQuiz | undefined = data?.find(
-      (v: IQuiz) => v.display_date === dayjs().format("YYYY-MM-DD"),
-    );
+    const randomIndex = Math.floor(Math.random() * data.length);
+    const quiz = data[randomIndex];
+    // const quiz: IQuiz | undefined = data?.find(
+    //   (v: IQuiz) => v.display_date === dayjs().format("YYYY-MM-DD")
+    // );
 
     return quiz;
   } catch (e) {
