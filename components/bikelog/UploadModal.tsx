@@ -101,6 +101,7 @@ const UploadModal = ({
               position: "absolute",
               top: 0,
             }}
+            multiple
           />
         </div>
       </ReactModal>
