@@ -25,7 +25,7 @@ export default function CourseViewer({
       address_name: place.address_name,
       x: place.x,
       y: place.y,
-    }),
+    })
   );
 
   return (
@@ -47,13 +47,13 @@ export default function CourseViewer({
       <div className="border border-gray-300 p-3 rounded-lg mb-4">
         [{LOG_STATUS[courses.status as IStatus].text}]{" "}
         {dayjs(courses.created_at?.replace("GMT", "")).format(
-          "YYYY-MM-DD, A hh시 mm분",
+          "YYYY-MM-DD, A hh시 mm분"
         )}
       </div>
 
       <div className="flex flex-col gap-4">
         <div
-          className={`bg-gray-light rounded-2xl h-[174px] w-full flex items-center justify-center`}
+          className={`bg-gray-light rounded-2xl h-[160px] w-full flex items-center justify-center`}
         >
           <KakaoMapView places={processedPlaces} />
         </div>

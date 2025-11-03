@@ -18,7 +18,7 @@ export type QuizStatus = (typeof QUIZ_STATUS)[keyof typeof QUIZ_STATUS];
 export default function Home() {
   const { data } = useQuery({ queryKey: ["quiz"], queryFn: getQuiz });
 
-  const { data: quizStatus } = useQuery({
+  const { data: quizStatus, isLoading } = useQuery({
     queryKey: ["quizStatus"],
     queryFn: getQuizStatus,
   });
@@ -27,9 +27,10 @@ export default function Home() {
   const isCorrect = useRef<boolean | null>(null);
 
   useEffect(() => {
+    if (isLoading) return;
     if (quizStatus?.attempted) {
       setStatus(
-        quizStatus.is_correct ? QUIZ_STATUS.CORRECT : QUIZ_STATUS.WRONG,
+        quizStatus.is_correct ? QUIZ_STATUS.CORRECT : QUIZ_STATUS.WRONG
       );
       isCorrect.current = quizStatus.is_correct;
     } else {

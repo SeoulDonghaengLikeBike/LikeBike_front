@@ -1,3 +1,13 @@
+declare global {
+  interface Window {
+    kakao?: {
+      maps?: {
+        load?: (callback: () => void) => void;
+      };
+    };
+  }
+}
+
 import { useEffect, useState } from "react";
 
 const SCRIPT_ID = "kakao-map-sdk";
@@ -18,17 +28,22 @@ export default function useKakao() {
 
     const callMapsLoad = () => {
       try {
-        if ((window as any).kakao?.maps?.load) {
-          (window as any).kakao.maps.load(() => setLoaded(true));
-        } else if ((window as any).kakao && !(window as any).kakao.maps) {
+        if (window.kakao?.maps?.load) {
+          window.kakao.maps.load(() => setLoaded(true));
+        } else if (window.kakao && !window.kakao.maps) {
           // kakao exists but maps not ready, try small poll then call load
           const t = setInterval(() => {
-            if ((window as any).kakao?.maps?.load) {
+            if (window.kakao?.maps?.load) {
               clearInterval(t);
-              (window as any).kakao.maps.load(() => setLoaded(true));
+              window.kakao.maps.load(() => setLoaded(true));
             }
           }, 50);
-          setTimeout(() => clearInterval(t), 5000);
+          // Clear interval after 5 seconds to prevent infinite polling
+          const timeout = setTimeout(() => clearInterval(t), 5000);
+          return () => {
+            clearInterval(t);
+            clearTimeout(timeout);
+          };
         }
       } catch (e: any) {
         setError(e);
@@ -36,17 +51,24 @@ export default function useKakao() {
     };
 
     const existing = document.getElementById(
-      SCRIPT_ID,
+      SCRIPT_ID
     ) as HTMLScriptElement | null;
     if (existing) {
       // script tag exists; wait for kakao to be ready or attach load
-      if ((window as any).kakao?.maps) {
+      if (window.kakao?.maps) {
         setLoaded(true);
       } else {
-        existing.addEventListener("load", () => callMapsLoad());
-        existing.addEventListener("error", () =>
-          setError(new Error("Failed to load Kakao SDK")),
-        );
+        const loadHandler = () => callMapsLoad();
+        const errorHandler = () =>
+          setError(new Error("Failed to load Kakao SDK"));
+
+        existing.addEventListener("load", loadHandler);
+        existing.addEventListener("error", errorHandler);
+
+        return () => {
+          existing.removeEventListener("load", loadHandler);
+          existing.removeEventListener("error", errorHandler);
+        };
       }
       return;
     }
@@ -55,9 +77,20 @@ export default function useKakao() {
     script.id = SCRIPT_ID;
     script.src = SRC;
     script.async = true;
-    script.onload = () => callMapsLoad();
-    script.onerror = () => setError(new Error("Failed to load Kakao SDK"));
+
+    const loadHandler = () => callMapsLoad();
+    const errorHandler = () => setError(new Error("Failed to load Kakao SDK"));
+
+    script.addEventListener("load", loadHandler);
+    script.addEventListener("error", errorHandler);
     document.head.appendChild(script);
+
+    return () => {
+      script.removeEventListener("load", loadHandler);
+      script.removeEventListener("error", errorHandler);
+      // Optionally remove the script on unmount if you want
+      // document.head.removeChild(script);
+    };
   }, []);
 
   return { loaded, error };

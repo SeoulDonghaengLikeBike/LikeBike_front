@@ -6,6 +6,7 @@ interface ButtonModalProps {
   buttonText: string; // Text for the button
   onClickButton: () => void; // Optional click handler for the button
   isOpen: boolean; // Optional prop to control modal visibility
+  image?: string;
   isList?: boolean; // Optional prop to display contents as a list
   isRed?: boolean; // Optional prop to style the button
   hasBackDrop?: boolean; // Optional prop to control backdrop visibility
@@ -15,6 +16,7 @@ interface ButtonModalProps {
 const ButtonModal = ({
   title,
   contents,
+  image,
   buttonText,
   onClickButton,
   isOpen,
@@ -34,14 +36,17 @@ const ButtonModal = ({
                 <div key={index} className="font-normal">
                   {`•\u00A0\u00A0${content}`}
                 </div>
+              ) : content == "" ? (
+                <div className="h-2" key={index} />
               ) : (
                 <div key={index} className="font-normal">
                   {content}
                 </div>
-              ),
+              )
             )}
           </div>
         </div>
+        {image && <img src={image} alt="guide" />}
         {!noButton && (
           <button
             className={`text-white py-2 px-4 rounded-lg cursor-pointer ${isRed ? "bg-contrast-dark" : "bg-primary"}`}

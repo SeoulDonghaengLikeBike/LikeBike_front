@@ -14,6 +14,7 @@ const CommonModal = ({
   return (
     <ReactModal
       isOpen={modalIsOpen}
+      ariaHideApp={false}
       style={{
         content: {
           top: "50%",

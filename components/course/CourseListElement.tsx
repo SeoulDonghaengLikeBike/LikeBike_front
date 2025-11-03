@@ -26,7 +26,7 @@ export default function CourseListElement({
       <div className="flex flex-row gap-4 pt-2 cursor-pointer">
         <div
           className="w-full rounded-lg overflow-hidden active:opacity-70"
-          onClick={() => router.push(`?viewModal=${idx}`)}
+          onClick={() => router.push(`?viewModal=${v.id}`)}
         >
           <PhotoStatusCard
             chipText={places.map((place) => place.name).join(" → ")}
