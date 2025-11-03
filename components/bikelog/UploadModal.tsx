@@ -4,16 +4,16 @@ import ReactModal from "react-modal";
 
 interface UploadModalProps {
   upload: {
-    title: string; // Title for the upload modal
-    contents: string[]; // Contents for the upload modal
-    isOpen: boolean; // Is the upload modal open
-    setOpen?: (open: boolean) => void; // Optional function to set the open state
+    title: string;
+    contents: string[];
+    isOpen: boolean;
+    setOpen?: (open: boolean) => void;
   };
   confirm: {
-    title: string; // Title for the confirm modal
-    onOk: (file: File) => void; // OK button handler
+    title: string;
+    onOk: (file: File) => void;
   };
-  prefix?: string; // Optional prefix for the modal
+  prefix?: string;
 }
 
 const UploadModal = ({
@@ -21,46 +21,39 @@ const UploadModal = ({
   confirm: { title: confirmTitle, onOk },
   prefix,
 }: UploadModalProps) => {
-  const [preview, setPreview] = useState("");
+  const [preview, setPreview] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleCapture = (target: any) => {
-    if (target.files) {
-      if (target.files.length !== 0) {
-        const newFile = target.files[0];
-        const newUrl = URL.createObjectURL(newFile);
-        const oldUrl = preview;
-        setPreview(newUrl);
-        URL.revokeObjectURL(oldUrl); // Clean up old URL
-        setFile(newFile);
-        setConfirmOpen(true);
-      }
-    }
-  };
-
-  // useEffect(() => {
-  //   window.addEventListener("cameraResult", (e) => {
-  //     const photo = e.detail;
-  //     console.log("사진 데이터:", photo);
-  //     alert(photo);
-  //   });
-
-  //   return () => {
-  //     window.removeEventListener("cameraResult", (e) => {});
-  //     if (preview) URL.revokeObjectURL(preview);
-  //   };
-  // }, []);
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
     };
-  }, []);
+  }, [preview]);
+
+  const handleCapture = (target: HTMLInputElement) => {
+    const files = target.files;
+    if (!files || files.length === 0) return;
+
+    const newFile = files[0];
+
+    const newUrl = URL.createObjectURL(newFile);
+    if (preview) {
+      setTimeout(() => URL.revokeObjectURL(preview), 200);
+    }
+    setFile(newFile);
+    setPreview(newUrl);
+
+    setTimeout(() => setConfirmOpen(true), 0);
+    target.value = "";
+  };
 
   return (
     <>
+      {/* 📸 업로드 모달 */}
       <ReactModal
-        contentLabel="Bike Count Modal"
+        ariaHideApp={false}
+        contentLabel="Upload Modal"
         isOpen={isOpen}
         style={{
           content: {
@@ -68,12 +61,10 @@ const UploadModal = ({
             left: "50%",
             right: "auto",
             bottom: "auto",
-            marginRight: "-50%",
             transform: "translate(-50%, -50%)",
             zIndex: 40,
             width: "90%",
             maxWidth: "400px",
-            height: "auto",
             padding: 0,
             boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.5)",
           },
@@ -83,7 +74,7 @@ const UploadModal = ({
           },
         }}
       >
-        <div className="p-6 flex flex-col text-center">
+        <div className="p-6 flex flex-col text-center relative">
           <div className="cursor-pointer absolute top-2 right-2 z-10 px-4 py-2">
             <CloseIcon onClick={() => setOpen?.(false)} />
           </div>
@@ -93,14 +84,7 @@ const UploadModal = ({
               {contents?.map((content, index) => <p key={index}>{content}</p>)}
             </div>
           </div>
-          {/* <div
-            className="bg-primary text-white py-2 px-4 rounded-lg cursor-pointer"
-            onClick={() => {
-              (window as any)?.ReactNativeWebView?.postMessage("openCamera");
-            }}
-          >
-           사진 업로드하기
-          </div> */}
+
           <label
             className="bg-primary text-white py-2 px-4 rounded-lg cursor-pointer"
             htmlFor={`${prefix}-image`}
@@ -108,21 +92,23 @@ const UploadModal = ({
             사진 업로드하기
           </label>
           <input
-            accept="image/*"
-            // capture="environment"
             id={`${prefix}-image`}
+            type="file"
+            accept="image/*"
             onChange={(e) => handleCapture(e.target)}
             style={{
               visibility: "hidden",
               position: "absolute",
               top: 0,
             }}
-            type="file"
           />
         </div>
       </ReactModal>
+
+      {/* ✅ 확인 모달 */}
       <ReactModal
-        contentLabel="Bike Count Modal"
+        contentLabel="Confirm Modal"
+        ariaHideApp={false}
         isOpen={confirmOpen}
         style={{
           content: {
@@ -130,12 +116,10 @@ const UploadModal = ({
             left: "50%",
             right: "auto",
             bottom: "auto",
-            marginRight: "-50%",
             transform: "translate(-50%, -50%)",
             zIndex: 60,
             width: "90%",
             maxWidth: "400px",
-            height: "auto",
             padding: 0,
           },
           overlay: {
@@ -150,23 +134,26 @@ const UploadModal = ({
               <strong>아래 사진으로</strong>
               <strong>{confirmTitle}</strong>
             </div>
+
             <img
-              alt="snap"
-              className="bg-gray-200 min-h-[200px]"
-              height="100%"
+              alt="preview"
               src={preview}
+              className="bg-gray-200 min-h-[200px] rounded-md"
               style={{
+                width: "100%",
                 aspectRatio: "1/1",
                 objectFit: "cover",
               }}
-              width="100%"
             />
           </div>
-          <div className="border-t border-gray-300 flex flex-row w-full h-full">
+
+          <div className="border-t border-gray-300 flex">
             <div
-              className="flex-1 flex justify-center items-center p-4 border-r border-gray-300 cursor-pointer
-            hover:bg-gray-100"
-              onClick={() => setConfirmOpen(false)}
+              className="flex-1 flex justify-center items-center p-4 border-r border-gray-300 cursor-pointer hover:bg-gray-100"
+              onClick={() => {
+                setConfirmOpen(false);
+                setPreview("");
+              }}
             >
               아니오
             </div>
@@ -176,7 +163,9 @@ const UploadModal = ({
                 if (file) {
                   setConfirmOpen(false);
                   onOk(file);
-                } else alert("파일이 업로드 되지 않았습니다");
+                } else {
+                  alert("파일이 업로드 되지 않았습니다");
+                }
               }}
             >
               예
