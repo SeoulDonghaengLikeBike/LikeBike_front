@@ -73,7 +73,7 @@ export default function CourseViewer({
                 text: v.description || "",
                 preview: v.photo_url,
               }}
-              idx={idx + 1}
+              idx={idx}
               key={idx}
               readOnly
             />
