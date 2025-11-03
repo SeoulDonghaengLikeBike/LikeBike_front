@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import createBikeLog from "@/apis/bikelog/createBikeLog";
 import { getBikeCount } from "@/apis/bikelog/getBikeCount";
@@ -13,7 +13,7 @@ import EmSpan from "../common/EmSpan";
 import WhiteBox from "../common/WhiteBox";
 import ExampleStatusCard from "./ExampleStatusCard";
 import UploadModal from "./UploadModal";
-import { getCompressionImage } from "@/utils/getCompressionImage";
+import { HAS_SEEN_BIKE_MODAL } from "@/constant/storageName";
 
 const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
   const hatFile = useRef<File | null>(null);
@@ -21,6 +21,7 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
   const [hatUploadModalOpen, setHatUploadModalOpen] = useState(false);
   const [bikeUploadModalOpen, setBikeUploadModalOpen] = useState(false);
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
 
   const { data: bikeCount } = useQuery({
     queryKey: ["bikeCount"],
@@ -56,8 +57,34 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
     }
   };
 
+  useEffect(() => {
+    const res = localStorage.getItem(HAS_SEEN_BIKE_MODAL);
+    if (res !== "true") setGuideModalOpen(true);
+  }, []);
+
   return (
     <div className="flex flex-col gap-4">
+      <ButtonModal
+        buttonText="확인"
+        contents={[
+          "‘안전모+사용자’는",
+          "얼굴이 확인되는 셀카 1장",
+          "",
+          "‘자전거’는 브레이크 달린",
+          "자전거만 찍은 사진 1장",
+          "",
+          "각 1장씩 (총 2장 세트)으로",
+          "인증해주세요.",
+        ]}
+        image={"/images/bike_preview.jpg"}
+        isOpen={guideModalOpen}
+        title="자전거 타기 인증 예시"
+        onClickButton={() => {
+          setGuideModalOpen(false);
+          localStorage.setItem(HAS_SEEN_BIKE_MODAL, "true");
+        }}
+        hasBackDrop
+      />
       <ButtonModal
         buttonText="인증 내역 확인하기"
         contents={[
