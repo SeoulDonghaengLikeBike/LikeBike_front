@@ -10,9 +10,9 @@ import EmSpan from "../common/EmSpan";
 import ToggleContent from "../common/ToggleContent";
 import WhiteBox from "../common/WhiteBox";
 import CourseViewer from "./CourseViewer";
-import { useState } from "react";
 import CourseListElement from "./CourseListElement";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 require("dayjs/locale/ko");
@@ -26,7 +26,14 @@ const CourseList = () => {
 
   const router = useRouter();
   const params = useSearchParams();
-  const modalIdx = params.has("viewModal") ? Number(params.get("modal")) : null;
+  const modalIdx = params.has("viewModal")
+    ? Number(params.get("viewModal"))
+    : null;
+
+  const courseData = useMemo(
+    () => data?.find((v) => v.id == modalIdx),
+    [modalIdx]
+  );
 
   return (
     <>
@@ -48,7 +55,7 @@ const CourseList = () => {
       </div>
       <CourseViewer
         isOpen={modalIdx !== null}
-        courses={modalIdx == null ? undefined : data?.[modalIdx]}
+        courses={modalIdx == null ? undefined : courseData}
         onClose={() => router.back()}
       />
       <div className="mt-4 flex flex-col gap-4">

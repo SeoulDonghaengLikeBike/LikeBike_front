@@ -110,7 +110,7 @@ const CourseCreate = ({ goToList }: Props) => {
       </div>
       <div className="flex flex-col gap-4">
         <div
-          className={`bg-gray-light rounded-2xl h-[174px] w-full flex items-center justify-center`}
+          className={`bg-gray-light rounded-2xl h-[160px] w-full flex items-center justify-center`}
         >
           <KakaoMapView places={places} />
         </div>
