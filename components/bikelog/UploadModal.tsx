@@ -1,5 +1,5 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import ReactModal from "react-modal";
 
 interface UploadModalProps {
@@ -11,7 +11,7 @@ interface UploadModalProps {
   };
   confirm: {
     title: string;
-    onOk: (file: File) => void;
+    onOk: (file: File, preview: string) => void;
   };
   prefix?: string;
 }
@@ -21,15 +21,9 @@ const UploadModal = ({
   confirm: { title: confirmTitle, onOk },
   prefix,
 }: UploadModalProps) => {
-  const [preview, setPreview] = useState<string>("");
+  const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (preview) URL.revokeObjectURL(preview);
-    };
-  }, [preview]);
 
   const handleCapture = (target: HTMLInputElement) => {
     const files = target.files;
@@ -138,7 +132,7 @@ const UploadModal = ({
 
             <img
               alt="preview"
-              src={preview}
+              src={preview || undefined}
               className="bg-gray-200 min-h-[200px] rounded-md"
               style={{
                 width: "100%",
@@ -153,7 +147,7 @@ const UploadModal = ({
               className="flex-1 flex justify-center items-center p-4 border-r border-gray-300 cursor-pointer hover:bg-gray-100"
               onClick={() => {
                 setConfirmOpen(false);
-                setPreview("");
+                setPreview(null);
               }}
             >
               아니오
@@ -161,9 +155,9 @@ const UploadModal = ({
             <div
               className="flex-1 flex justify-center items-center p-4 cursor-pointer hover:bg-gray-100"
               onClick={() => {
-                if (file) {
+                if (file && preview) {
                   setConfirmOpen(false);
-                  onOk(file);
+                  onOk(file, preview);
                 } else {
                   alert("파일이 업로드 되지 않았습니다");
                 }
