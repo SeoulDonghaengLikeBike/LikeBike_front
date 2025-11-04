@@ -27,6 +27,7 @@ const CommonModal = ({
           width: "80%",
           maxWidth: "400px",
           height: "auto",
+          maxHeight: "90vh",
           padding: "1rem",
           paddingTop: "1.5rem",
           boxShadow: "0 0 4px 0 rgba(0, 0, 0, 0.5)",
