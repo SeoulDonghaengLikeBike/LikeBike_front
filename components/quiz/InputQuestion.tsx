@@ -19,7 +19,7 @@ const InputQuestion = ({ quiz, answer, setAnswer }: Props) => {
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
       />
-      <div className="flex flex-row align-center mt-2 justify-center">
+      <div className="flex flex-row align-center mt-2 mb-8 justify-center">
         <Hint
           hint_explation={quiz?.hint_explation}
           hint_link={quiz?.hint_link}
