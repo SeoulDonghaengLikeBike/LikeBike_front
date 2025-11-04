@@ -111,6 +111,12 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
             setHatUploadModalOpen(false);
             setBikeUploadModalOpen(true);
           },
+          onCancel: () => {
+            hatFile.current = null;
+            setHatPreview(null);
+            bikeFile.current = null;
+            setBikePreview(null);
+          },
         }}
         upload={{
           title: "[안전모+사용자] 업로드",
@@ -131,6 +137,10 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
             setBikePreview(preview);
             setBikeUploadModalOpen(false);
             setConfirmModalOpen(true);
+          },
+          onCancel: () => {
+            bikeFile.current = null;
+            setBikePreview(null);
           },
         }}
         upload={{

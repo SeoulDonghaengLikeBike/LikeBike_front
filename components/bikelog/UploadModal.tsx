@@ -12,13 +12,14 @@ interface UploadModalProps {
   confirm: {
     title: string;
     onOk: (file: File, preview: string) => void;
+    onCancel: () => void;
   };
   prefix?: string;
 }
 
 const UploadModal = ({
   upload: { title, contents, isOpen, setOpen },
-  confirm: { title: confirmTitle, onOk },
+  confirm: { title: confirmTitle, onOk, onCancel },
   prefix,
 }: UploadModalProps) => {
   const [preview, setPreview] = useState<string | null>(null);
@@ -148,6 +149,8 @@ const UploadModal = ({
               onClick={() => {
                 setConfirmOpen(false);
                 setPreview(null);
+                setFile(null);
+                onCancel();
               }}
             >
               아니오
