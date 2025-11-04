@@ -14,6 +14,7 @@ import WhiteBox from "../common/WhiteBox";
 import ExampleStatusCard from "./ExampleStatusCard";
 import UploadModal from "./UploadModal";
 import { HAS_SEEN_BIKE_MODAL } from "@/constant/storageName";
+import UploadConfirmModal from "./UploadConfirmModal";
 
 const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
   const hatFile = useRef<File | null>(null);
@@ -21,6 +22,9 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
   const [hatUploadModalOpen, setHatUploadModalOpen] = useState(false);
   const [bikeUploadModalOpen, setBikeUploadModalOpen] = useState(false);
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
+  const [confrimModalOpen, setConfirmModalOpen] = useState(false);
+  const [hatPreview, setHatPreview] = useState<string | null>(null);
+  const [bikePreview, setBikePreview] = useState<string | null>(null);
   const [guideModalOpen, setGuideModalOpen] = useState(false);
 
   const { data: bikeCount } = useQuery({
@@ -30,24 +34,22 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
 
   const isAlreadyCertified = bikeCount && bikeCount > 0;
 
+  const clearUpload = () => {
+    hatFile.current = null;
+    bikeFile.current = null;
+    setBikePreview(null);
+    setHatPreview(null);
+    setConfirmModalOpen(false);
+  };
+
   const handleUpload = async () => {
     if (hatFile.current && bikeFile.current) {
       try {
-        // console.log("Compressed Files:", {
-        //   bike: compressedbikeFile,
-        //   hat: compressedHatFile,
-        // });
-
-        // console.log("size of bikeFile:", compressedbikeFile.size);
-        // console.log("size of hatFile:", compressedHatFile.size);
-
         await createBikeLog({
           bike_photo: bikeFile.current,
           safety_gear_photo: hatFile.current,
         });
-        // alert('자전거 타기 인증이 완료되었습니다!')
-        hatFile.current = null;
-        bikeFile.current = null;
+        clearUpload();
         setCompleteModalOpen(true);
       } catch (error) {
         alert("인증에 실패했습니다. 다시 시도해주세요: " + error);
@@ -102,11 +104,18 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
       <UploadModal
         prefix="hat"
         confirm={{
-          title: `[안전모+사용자]를 인증할까요?`,
-          onOk: (file) => {
+          title: `[안전모+사용자]를 업로드할까요?`,
+          onOk: (file, preview) => {
             hatFile.current = file;
+            setHatPreview(preview);
             setHatUploadModalOpen(false);
             setBikeUploadModalOpen(true);
+          },
+          onCancel: () => {
+            hatFile.current = null;
+            setHatPreview(null);
+            bikeFile.current = null;
+            setBikePreview(null);
           },
         }}
         upload={{
@@ -122,11 +131,16 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
       <UploadModal
         prefix="bike"
         confirm={{
-          title: `[자전거]를 인증할까요?`,
-          onOk: async (file) => {
+          title: `[자전거]를 업로드할까요?`,
+          onOk: async (file, preview) => {
             bikeFile.current = file;
+            setBikePreview(preview);
             setBikeUploadModalOpen(false);
-            await handleUpload();
+            setConfirmModalOpen(true);
+          },
+          onCancel: () => {
+            bikeFile.current = null;
+            setBikePreview(null);
           },
         }}
         upload={{
@@ -134,6 +148,15 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
           contents: ["브레이크가 확인되는 자전거 사진을 업로드"],
           isOpen: bikeUploadModalOpen,
           setOpen: setBikeUploadModalOpen,
+        }}
+      />
+      <UploadConfirmModal
+        hatPreview={hatPreview}
+        bikePreview={bikePreview}
+        confirmOpen={confrimModalOpen}
+        onCancel={clearUpload}
+        onOk={async () => {
+          await handleUpload();
         }}
       />
       <BubbleChat text="이렇게 인증해주세요!" />

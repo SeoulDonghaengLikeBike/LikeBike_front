@@ -1,6 +1,7 @@
 import { IQuiz } from "@/types/quiz";
 import Image from "next/image";
 import Link from "next/link";
+import Hint from "./Hint";
 
 interface Props {
   quiz: IQuiz | undefined;
@@ -18,30 +19,11 @@ const InputQuestion = ({ quiz, answer, setAnswer }: Props) => {
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
       />
-      <div className="flex flex-row align-center mt-2 justify-center">
-        {(quiz?.hint_link || quiz?.hint_explation) && (
-          <>
-            <Image
-              width={24}
-              height={24}
-              alt="hint"
-              src={"/icons/question.svg"}
-            />
-            {quiz?.hint_link ? (
-              <Link href={quiz.hint_link}>
-                <div className=" text-primary ml-[4px] underline">
-                  {quiz?.hint_explation ?? "힌트 보러 가기"}
-                </div>
-              </Link>
-            ) : (
-              quiz?.hint_explation && (
-                <div className=" text-primary ml-[4px]">
-                  {quiz?.hint_explation}
-                </div>
-              )
-            )}
-          </>
-        )}
+      <div className="flex flex-row align-center mt-2 mb-8 justify-center">
+        <Hint
+          hint_explation={quiz?.hint_explation}
+          hint_link={quiz?.hint_link}
+        />
       </div>
     </div>
   );

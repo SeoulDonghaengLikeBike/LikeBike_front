@@ -12,6 +12,7 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import Link from "next/link";
+import PrivacyTipOutlinedIcon from "@mui/icons-material/PrivacyTipOutlined";
 
 export default function Home() {
   const router = useRouter();
@@ -66,6 +67,16 @@ export default function Home() {
         <ButtonContainer>
           <CampaignOutlinedIcon />
           <Typography>안전 신문고</Typography>
+        </ButtonContainer>
+      </Link>
+      <Link
+        href={
+          "https://bony-billboard-d87.notion.site/2a157842371d80988fd3fec6e93214f1"
+        }
+      >
+        <ButtonContainer>
+          <PrivacyTipOutlinedIcon />
+          <Typography>개인정보 활용 및 처리 방침</Typography>
         </ButtonContainer>
       </Link>
       <ButtonContainer onClick={onClickLogout}>

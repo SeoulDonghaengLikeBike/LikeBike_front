@@ -28,8 +28,8 @@ const Quiz = ({
       <div className="bg-secondary-light w-full flex flex-col items-center justify-center p-4 mt-4 text-2xl font-bold default-border ">
         {dayjs().format("YYYY - MM - DD")}
       </div>
-      <div className="p-6 flex flex-col default-border bg-white justify-between h-full">
-        <div className="flex flex-col gap-4">
+      <div className="p-6 flex flex-col default-border bg-white h-full justify-between">
+        <div className="flex flex-col gap-4 h-full">
           <div>{quiz?.question ? quiz.question : "문제가 없습니다."}</div>
           {/* <Link href={quiz?.hint_link ?? ""} className="text-blue-500 underline">
         <div className="p-2">힌트 보러 가기</div>
