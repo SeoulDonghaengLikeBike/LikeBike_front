@@ -1,4 +1,5 @@
 import { IQuiz } from "@/types/quiz";
+import Hint from "./Hint";
 
 interface Props {
   quiz: IQuiz | undefined;
@@ -34,6 +35,12 @@ const SelectQuestion = ({ quiz, answer, setAnswer }: Props) => {
           <div className="flex items-center ">{v}</div>
         </div>
       ))}
+      <div className="flex flex-row align-center my-2 justify-center">
+        <Hint
+          hint_explation={quiz?.hint_explation}
+          hint_link={quiz?.hint_link}
+        />
+      </div>
     </div>
   );
 };
