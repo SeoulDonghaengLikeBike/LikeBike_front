@@ -26,11 +26,28 @@ const UploadModal = ({
   const [file, setFile] = useState<File | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleCapture = (target: HTMLInputElement) => {
+  // file: File | Blob | contentUri
+  const normalizeFile = async (
+    fileOrUri: File | Blob | string,
+    name: string
+  ) => {
+    if (fileOrUri instanceof File) return fileOrUri;
+    if (fileOrUri instanceof Blob)
+      return new File([fileOrUri], name, {
+        type: fileOrUri.type || "image/jpeg",
+      });
+
+    // string이면 content:// 같은 URI
+    const res = await fetch(fileOrUri);
+    const blob = await res.blob();
+    return new File([blob], name, { type: blob.type || "image/jpeg" });
+  };
+
+  const handleCapture = async (target: HTMLInputElement) => {
     const files = target.files;
     if (!files || files.length === 0) return;
 
-    const newFile = files[0];
+    const newFile = await normalizeFile(files[0], files[0].name);
 
     const newUrl = URL.createObjectURL(newFile);
     if (preview) {
@@ -97,6 +114,7 @@ const UploadModal = ({
               top: 0,
             }}
             multiple
+            capture
           />
         </div>
       </ReactModal>
