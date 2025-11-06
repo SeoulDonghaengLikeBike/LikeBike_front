@@ -12,11 +12,11 @@ const Hint = ({ hint_link, hint_explation }: Props) => {
       <>
         <Image width={24} height={24} alt="hint" src={"/icons/question.svg"} />
         {hint_link ? (
-          <Link href={hint_link}>
+          <a href={hint_link}>
             <div className=" text-primary ml-[4px] underline">
               {hint_explation ?? "힌트 보러 가기"}
             </div>
-          </Link>
+          </a>
         ) : (
           hint_explation && (
             <div className=" text-primary ml-[4px]">{hint_explation}</div>
