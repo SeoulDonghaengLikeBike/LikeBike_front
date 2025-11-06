@@ -38,14 +38,9 @@ export const createCourse = async (courseData: ICourseCard[]) => {
     }
   });
 
-  try {
-    const response = await axiosInstance.post<IResponse<any>>(
-      `${PATH}`,
-      formData,
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error creating course:", error);
-    throw new Error("Failed to create course");
-  }
+  const response = await axiosInstance.post<IResponse<any>>(
+    `${PATH}`,
+    formData
+  );
+  return response.data;
 };
