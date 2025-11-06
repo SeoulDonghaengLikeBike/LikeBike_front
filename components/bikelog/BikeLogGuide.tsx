@@ -15,6 +15,8 @@ import ExampleStatusCard from "./ExampleStatusCard";
 import UploadModal from "./UploadModal";
 import { HAS_SEEN_BIKE_MODAL } from "@/constant/storageName";
 import UploadConfirmModal from "./UploadConfirmModal";
+import { IError } from "@/types/base";
+import { AxiosError } from "axios";
 
 const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
   const hatFile = useRef<File | null>(null);
@@ -43,6 +45,8 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
   };
 
   const handleUpload = async () => {
+    setConfirmModalOpen(false);
+
     if (hatFile.current && bikeFile.current) {
       try {
         await createBikeLog({
@@ -51,10 +55,18 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
         });
         clearUpload();
         setCompleteModalOpen(true);
-      } catch (error) {
-        alert("인증에 실패했습니다. 다시 시도해주세요: " + error);
+      } catch (e) {
+        setConfirmModalOpen(true);
+        const error = e as AxiosError<IError>;
+        console.log("e", e);
+        alert(
+          "인증에 실패했습니다. 다시 시도해주세요. [" +
+            (error?.response?.data.data?.[0].error || "알 수 없는 오류") +
+            "]"
+        );
       }
     } else {
+      setConfirmModalOpen(true);
       alert("모든 사진을 업로드해주세요!");
     }
   };

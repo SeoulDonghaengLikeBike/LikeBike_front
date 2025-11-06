@@ -7,6 +7,8 @@ import CourseCard from "./CourseCard";
 import ReactModal from "react-modal";
 import { useRouter, useSearchParams } from "next/navigation";
 import CourseSearch from "./CourseSearch";
+import { IError } from "@/types/base";
+import { AxiosError } from "axios";
 
 interface Props {
   courseCount: number | undefined;
@@ -60,9 +62,14 @@ export default function CourseCardList({
       setLoading(true);
       await createCourse(res);
       setModalIsOpen(true);
-    } catch (error) {
-      console.error("Error creating course:", error);
-      alert("코스 추천에 실패했습니다. 다시 시도해주세요.");
+    } catch (e) {
+      console.error("Error creating course:", e);
+      const error = e as AxiosError<IError>;
+      alert(
+        "인증에 실패했습니다. 다시 시도해주세요. [" +
+          (error?.response?.data.data?.[0].error || "알 수 없는 오류") +
+          "]"
+      );
     } finally {
       setLoading(false);
     }
@@ -93,7 +100,7 @@ export default function CourseCardList({
         return updated;
       });
     },
-    [modalIdx, setPlaceInfo],
+    [modalIdx, setPlaceInfo]
   );
 
   // 코스 추가
