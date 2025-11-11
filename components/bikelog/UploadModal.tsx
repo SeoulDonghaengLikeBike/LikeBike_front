@@ -114,6 +114,7 @@ const UploadModal = ({
               top: 0,
             }}
             multiple
+            capture
           />
         </div>
       </ReactModal>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
@@ -16,15 +17,16 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-6 w-full min-h-screen">
-      <img src="/images/logo.svg" alt="logo" className="w-[231px] h-[36px]" />
+      <Image src="/images/logo.svg" alt="logo" width={231} height={36} />
 
       <div
         onClick={handleKakaoLogin}
         className="flex items-center justify-center w-[300px] min-h-[45px] bg-gray-200 cursor-pointer relative"
       >
-        <img
+        <Image
           src="/images/kakao_login_large_wide.png"
           alt="login"
+          fill={true}
           className="w-full h-full"
         />
       </div>
