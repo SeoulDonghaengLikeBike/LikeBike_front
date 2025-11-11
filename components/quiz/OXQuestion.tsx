@@ -57,7 +57,7 @@ const OXQuestion = ({ quiz, answer, setAnswer }: Props) => {
       </div>
       <div className="flex flex-row align-center mt-4 justify-center">
         <Hint
-          hint_explation={quiz?.hint_explation}
+          hint_description={quiz?.hint_description}
           hint_link={quiz?.hint_link}
         />
       </div>

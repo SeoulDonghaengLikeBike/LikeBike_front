@@ -5,7 +5,7 @@ export interface IQuiz {
   correct_answer: string;
   explanation: string;
   hint_link: string;
-  hint_explation: string;
+  hint_description: string;
   display_date: string;
   quiz_type: QUIZ_TYPE;
 }

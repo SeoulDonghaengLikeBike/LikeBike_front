@@ -21,7 +21,7 @@ const InputQuestion = ({ quiz, answer, setAnswer }: Props) => {
       />
       <div className="flex flex-row align-center mt-2 mb-8 justify-center">
         <Hint
-          hint_explation={quiz?.hint_explation}
+          hint_description={quiz?.hint_description}
           hint_link={quiz?.hint_link}
         />
       </div>
