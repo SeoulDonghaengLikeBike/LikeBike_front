@@ -6,24 +6,26 @@ import CourseMain from "@/components/main/CourseMain";
 import NewsMain from "@/components/main/NewsMain";
 import QuizMain from "@/components/main/QuizMain";
 import RewardMain from "@/components/main/RewardMain";
-import { HAS_SEEN_QUIZ_NOTICE_MODAL } from "@/constant/storageName";
+import {
+  HAS_SEEN_CLOSE_MODAL,
+  HAS_SEEN_QUIZ_NOTICE_MODAL,
+} from "@/constant/storageName";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 
 export default function Home() {
   // const router = useRouter();
   // const isBlock = dayjs().format("YYYY-MM-DD") == "2025-11-01";
-  const mainModalBlock = dayjs().isAfter("2025-11-05");
   const [mainModalOpen, setMainModalOpen] = useState(false);
 
   useEffect(() => {
-    const res = localStorage.getItem(HAS_SEEN_QUIZ_NOTICE_MODAL);
+    const res = localStorage.getItem(HAS_SEEN_CLOSE_MODAL);
     if (res !== "true") setMainModalOpen(true);
   }, []);
 
   return (
     <>
-      <ButtonModal
+      {/* <ButtonModal
         buttonText="확인"
         contents={[
           "안녕하세요, LIKE BIKE 운영팀입니다.",
@@ -50,23 +52,25 @@ export default function Home() {
           localStorage.setItem(HAS_SEEN_QUIZ_NOTICE_MODAL, "true");
         }}
         hasBackDrop
-      />
+      /> */}
 
-      {/* <ButtonModal
-        isOpen={isBlock}
-        buttonText="서비스 안내 보기"
+      <ButtonModal
+        isOpen={mainModalOpen}
+        buttonText="확인"
         contents={[
-          "내일 드디어 Likbike가 오픈합니다.",
-          "서비스가 궁금하다면 지금 미리 살펴보세요!",
+          "라이크바이크 서비스는",
+          "2025년 11월 15일부로 종료되었습니다.",
+          "리워드 관련 안내는",
+          "등록된 연락처를 통해 개별 전달됩니다.",
+          "그동안 이용해 주셔서 감사합니다. 🙏",
         ]}
-        title="🎉 곧 만나요!"
+        title="[서비스 종료 안내]"
         onClickButton={() => {
-          router.push(
-            `https://www.notion.so/22957842371d80f7a36dd27c1ec0d192?v=22757842371d80dab4ac000ce7a6f8c5&source=copy_link`
-          );
+          setMainModalOpen(false);
+          localStorage.setItem(HAS_SEEN_CLOSE_MODAL, "true");
         }}
         hasBackDrop={true}
-      /> */}
+      />
       <div className="flex flex-col w-full h-full gap-4 pb-3">
         <RewardMain />
         <div className="grid grid-cols-2 gap-2">
