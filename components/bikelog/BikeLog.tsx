@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import React from "react";
 
 import { IBikeLog, LOG_STATUS, UserBikeLog } from "@/types/bikeLog";
 
@@ -48,4 +49,7 @@ const BikeLog = ({
   );
 };
 
-export default BikeLog;
+// 성능 최적화: React.memo로 래핑
+// 이유: 부모 컴포넌트(BikeLogList)가 리렌더링될 때 불필요하게 각 BikeLog가 리렌더링되는 것을 방지
+// props가 변경되지 않으면 이전 렌더링 결과를 재사용하여 성능 향상
+export default React.memo(BikeLog);

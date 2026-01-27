@@ -1,5 +1,5 @@
 import { IKakaoMapPoint } from "@/types/course";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import useKakao from "@/hooks/useKakao";
 
 export interface IKakaoMapPointViewProps {
@@ -10,15 +10,7 @@ function KakaoMapView({ places }: IKakaoMapPointViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const { loaded, error } = useKakao();
 
-  useEffect(() => {
-    if (!loaded) return;
-    if (error) return console.error(error);
-    createMap();
-    // re-create only when sdk loaded or places change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded, places]);
-
-  const createMap = () => {
+  const createMap = useCallback(() => {
     const { kakao } = window;
     if (!kakao || !kakao.maps) return;
 
@@ -76,7 +68,14 @@ function KakaoMapView({ places }: IKakaoMapPointViewProps) {
         });
       }
     });
-  };
+  }, [places, mapRef]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    if (error) return console.error(error);
+    createMap();
+    // re-create only when sdk loaded or places change
+  }, [loaded, error, createMap]);
 
   return (
     <div

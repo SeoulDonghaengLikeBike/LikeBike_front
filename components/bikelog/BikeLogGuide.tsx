@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import imageCompression from "browser-image-compression";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import createBikeLog from "@/apis/bikelog/createBikeLog";
 import { getBikeCount } from "@/apis/bikelog/getBikeCount";
@@ -19,6 +19,8 @@ import { IError } from "@/types/base";
 import { AxiosError } from "axios";
 
 const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
+  // React Query 캐시 무효화를 위한 queryClient
+  const queryClient = useQueryClient();
   const hatFile = useRef<File | null>(null);
   const bikeFile = useRef<File | null>(null);
   const [hatUploadModalOpen, setHatUploadModalOpen] = useState(false);
@@ -36,15 +38,21 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
 
   const isAlreadyCertified = bikeCount && bikeCount > 0;
 
-  const clearUpload = () => {
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: 이 함수를 자식 컴포넌트(UploadConfirmModal)의 prop으로 전달
+  // 함수가 매 렌더링마다 새로 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
+  const clearUpload = useCallback(() => {
     hatFile.current = null;
     bikeFile.current = null;
     setBikePreview(null);
     setHatPreview(null);
     setConfirmModalOpen(false);
-  };
+  }, []);
 
-  const handleUpload = async () => {
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: 이 함수를 자식 컴포넌트(UploadConfirmModal)의 onOk prop으로 전달
+  // 함수가 매 렌더링마다 새로 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
+  const handleUpload = useCallback(async () => {
     setConfirmModalOpen(false);
 
     if (hatFile.current && bikeFile.current) {
@@ -53,6 +61,11 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
           bike_photo: bikeFile.current,
           safety_gear_photo: hatFile.current,
         });
+        // mutation 후 관련 캐시 무효화하여 최신 데이터 반영
+        // bikeLogs: 인증 내역 목록 갱신
+        // bikeCount: 인증 가능 여부 (하루 1회 제한) 갱신
+        queryClient.invalidateQueries({ queryKey: ["bikeLogs"] });
+        queryClient.invalidateQueries({ queryKey: ["bikeCount"] });
         clearUpload();
         setCompleteModalOpen(true);
       } catch (e) {
@@ -62,14 +75,21 @@ const BikeLogGuide = ({ setValue }: { setValue: (value: any) => void }) => {
         alert(
           "인증에 실패했습니다. 다시 시도해주세요. [" +
             (error?.response?.data.data?.[0].error || "알 수 없는 오류") +
-            "]"
+            "]",
         );
       }
     } else {
       setConfirmModalOpen(true);
       alert("모든 사진을 업로드해주세요!");
     }
-  };
+  }, [
+    // 의존성 배열: useCallback이 이 값들이 변경될 때만 새로운 함수를 생성
+    hatFile, // useRef는 항상 같은 참조지만, 안전하게 명시
+    bikeFile, // useRef는 항상 같은 참조지만, 안전하게 명시
+    clearUpload, // useCallback으로 감싸진 함수
+    setConfirmModalOpen, // setState 함수는 항상 같은 참조이지만 안전하게 명시
+    setCompleteModalOpen, // setState 함수는 항상 같은 참조이지만 안전하게 명시
+  ]);
 
   useEffect(() => {
     const res = localStorage.getItem(HAS_SEEN_BIKE_MODAL);

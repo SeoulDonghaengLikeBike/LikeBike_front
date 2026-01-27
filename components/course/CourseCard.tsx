@@ -1,7 +1,7 @@
 import PhotoIcon from "@/public/icons/PhotoIcon";
 import { ICourseCard, IKakaoMapPoint } from "@/types/course";
 import Image from "next/image";
-import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
 import CourseSearch from "./CourseSearch";
 import ReactModal from "react-modal";
 import { useDebouncedCallback } from "use-debounce";
@@ -25,7 +25,7 @@ interface ICourseCardProps {
   readOnly?: boolean;
 }
 
-export default function CourseCard({
+const CourseCard = ({
   idx,
   info: { place, text, image, preview },
   position,
@@ -45,7 +45,10 @@ export default function CourseCard({
     onChangeText(value);
   }, 500);
 
-  const errorInfo = {
+  // 성능 최적화: useMemo로 메모이제이션
+  // 이유: errorInfo는 showError, place, text, image, position이 변경될 때만 재계산
+  // 매 렌더링마다 새로운 객체가 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
+  const errorInfo = useMemo(() => ({
     place: showError && !place,
     text: showError && (!text || text.trim() === ""),
     image: showError && (position === "start" || position === "end") && !image,
@@ -54,10 +57,9 @@ export default function CourseCard({
       (!place ||
         !text ||
         text.trim() === "" ||
-        ((position === "start" || position === "end") && !image)),
-  };
+      ((position === "start" || position === "end") && !image)),
+  }), [showError, place, text, image, position]);
 
-  console.log("text", text);
   const onChangeFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (readOnly) return;
     const file = e.target.files ? e.target.files[0] : null;
@@ -191,3 +193,9 @@ export default function CourseCard({
     </div>
   );
 }
+
+
+// 성능 최적화: React.memo로 래핑
+// 이유: 부모 컴포넌트(CourseCardList)가 리렌더링될 때 불필요하게 각 CourseCard가 리렌더링되는 것을 방지
+// props가 변경되지 않으면 이전 렌더링 결과를 재사용하여 성능 향상
+export default React.memo(CourseCard);

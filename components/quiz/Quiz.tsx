@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { IQuiz, QUIZ_TYPE } from "@/types/quiz";
 
@@ -17,7 +17,13 @@ const Quiz = ({
   handleClick: (selectedValue: string) => void;
 }) => {
   const [answer, setAnswer] = useState("");
-  const quizType: QUIZ_TYPE = quiz?.quiz_type ?? QUIZ_TYPE.SELECT;
+  // 성능 최적화: useMemo로 메모이제이션
+  // 이유: quizType은 quiz.quiz_type이 변경될 때만 재계산
+  // 매 렌더링마다 새로운 값이 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
+  const quizType: QUIZ_TYPE = useMemo(
+    () => quiz?.quiz_type ?? QUIZ_TYPE.SELECT,
+    [quiz?.quiz_type],
+  );
 
   if (!quiz) {
     return <div className="pt-4">오늘의 퀴즈가 게시되지 않았습니다.</div>;

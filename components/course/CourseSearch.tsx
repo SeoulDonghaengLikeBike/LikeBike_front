@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useKakao from "@/hooks/useKakao";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CloseIcon from "@mui/icons-material/Close";
@@ -27,14 +27,7 @@ export default function CourseSearch({
   const [loading, setLoading] = useState(false);
   const { loaded, error } = useKakao();
 
-  useEffect(() => {
-    if (!loaded) return;
-    if (error) return console.error(error);
-    initMap();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded]);
-
-  const initMap = () => {
+  const initMap = useCallback(() => {
     const { kakao } = window;
     if (!mapRef.current) return;
 
@@ -83,23 +76,17 @@ export default function CourseSearch({
           infowindow.open(map, marker);
         });
 
-        kakao.maps.event.addListener(marker, "mouseout", () =>
-          infowindow.close(),
-        );
+        kakao.maps.event.addListener(marker, "mouseout", () => {
+          infowindow.close();
+        });
 
-        (marker as any).placeId = place.id;
-
-        markers.push(marker);
         bounds.extend(position);
+        markers.push(marker);
       });
 
-      map.setBounds(bounds);
-
-      // 전역 저장
-      window.__kakaoMapInstance = map;
-      window.__kakaoMarkers = markers;
-      window.__kakaoInfoWindow = infowindow;
-      window.__markerImages = { normalImage, selectedImage };
+      if (markers.length > 0) {
+        map.setBounds(bounds);
+      }
     };
 
     const searchPlaces = (keyword: string) => {
@@ -118,14 +105,17 @@ export default function CourseSearch({
 
     window.__searchKakaoPlaces = searchPlaces;
     searchPlaces(keyword);
-  };
+  }, [keyword]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (window.__searchKakaoPlaces) {
-      window.__searchKakaoPlaces(keyword);
-    }
-  };
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (window.__searchKakaoPlaces) {
+        window.__searchKakaoPlaces(keyword);
+      }
+    },
+    [keyword],
+  );
 
   // ✅ 선택 시 강조 + 위로 올라오게 (zIndex + 이미지 변경)
   const handlePlaceClick = (place: any) => {
@@ -163,11 +153,17 @@ export default function CourseSearch({
     infowindow.open(map, selectedMarker);
   };
 
-  const onSubmitPlace = () => {
+  useEffect(() => {
+    if (!loaded) return;
+    if (error) return console.error(error);
+    initMap();
+  }, [loaded, error, initMap]);
+
+  const onSubmitPlace = useCallback(() => {
     if (currentPlace) {
       onSelect(currentPlace);
     }
-  };
+  }, [currentPlace, onSelect]);
 
   return (
     <div className="flex flex-col h-[100vh]">

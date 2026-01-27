@@ -1,6 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createCourse } from "@/apis/course/createCourse";
 import { ICourseCard, IKakaoMapPoint } from "@/types/course";
 import CourseCard from "./CourseCard";
@@ -25,6 +26,8 @@ export default function CourseCardList({
   placeInfo,
   setPlaceInfo,
 }: Props) {
+  // React Query 캐시 무효화를 위한 queryClient
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
 
@@ -39,18 +42,22 @@ export default function CourseCardList({
     { place: null, text: "", image: null },
   ]);
 
-  // 체크: 모든 코스 완성 여부
-  const checkCompletedCourses = (res: ICourseCard[]) => {
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: onSubmit 함수 내부에서만 사용되며, 외부에서 참조하지 않음
+  // 하지만 안전하게 메모이제이션하여 불필요한 함수 생성 방지
+  const checkCompletedCourses = useCallback((res: ICourseCard[]) => {
     for (let i = 0; i < res.length; i++) {
       const course = res[i];
       if (!course.place || !course.text.trim()) return false;
       if ((i === 0 || i === res.length - 1) && !course.image) return false;
     }
     return true;
-  };
+  }, []);
 
-  // 코스 제출
-  const onSubmit = async () => {
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: 이 함수를 제출 버튼의 onClick prop으로 전달
+  // 함수가 매 렌더링마다 새로 생성되면 불필요한 리렌더링 유발
+  const onSubmit = useCallback(async () => {
     const res = courseInfo.map((v, idx) => ({ ...v, place: placeInfo[idx] }));
     if (!checkCompletedCourses(res)) {
       setShowError(true);
@@ -61,6 +68,11 @@ export default function CourseCardList({
     try {
       setLoading(true);
       await createCourse(res);
+      // mutation 후 관련 캐시 무효화하여 최신 데이터 반영
+      // courseList: 코스 목록 갱신
+      // courseCount: 코스 추천 가능 횟수 (주 2회 제한) 갱신
+      queryClient.invalidateQueries({ queryKey: ["courseList"] });
+      queryClient.invalidateQueries({ queryKey: ["courseCount"] });
       setModalIsOpen(true);
     } catch (e) {
       console.error("Error creating course:", e);
@@ -68,20 +80,31 @@ export default function CourseCardList({
       alert(
         "인증에 실패했습니다. 다시 시도해주세요. [" +
           (error?.response?.data.data?.[0].error || "알 수 없는 오류") +
-          "]"
+          "]",
       );
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    // 의존성 배열: useCallback이 이 값들이 변경될 때만 새로운 함수를 생성
+    courseInfo, // 상태 값이 변경될 때만 새로운 함수 생성
+    placeInfo, // 상태 값이 변경될 때만 새로운 함수 생성
+    setShowError, // setState 함수는 항상 같은 참조이지만 안전하게 명시
+    setErrorModalIsOpen, // setState 함수는 항상 같은 참조이지만 안전하게 명시
+    setModalIsOpen, // setState 함수는 항상 같은 참조이지만 안전하게 명시
+  ]);
 
-  // 코스 삭제
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: 이 함수를 자식 컴포넌트(CourseCard)의 removeCourse prop으로 전달
+  // 함수가 매 렌더링마다 새로 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
   const removeCourse = useCallback((selectedId: number) => {
     setCourseInfo((prev) => prev.filter((_, idx) => idx !== selectedId));
     setPlaceInfo((prev) => prev.filter((_, idx) => idx !== selectedId));
   }, []);
 
-  // 텍스트/이미지 업데이트
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: 이 함수를 자식 컴포넌트(CourseCard)의 setInfo prop으로 전달
+  // 함수가 매 렌더링마다 새로 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
   const updateInfo = useCallback((newInfo: ICourseCard, index: number) => {
     setCourseInfo((prev) => {
       const updated = [...prev];
@@ -90,6 +113,9 @@ export default function CourseCardList({
     });
   }, []);
 
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: 이 함수를 CourseSearch 모달의 onSelect prop으로 전달
+  // 함수가 매 렌더링마다 새로 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
   // 장소 업데이트 (modalIdx 기준)
   const updatePlaceInfo = useCallback(
     (newPlace: IKakaoMapPoint | null) => {
@@ -100,9 +126,13 @@ export default function CourseCardList({
         return updated;
       });
     },
-    [modalIdx, setPlaceInfo]
+    // 의존성 배열: modalIdx가 변경될 때만 새로운 함수 생성
+    [modalIdx, setPlaceInfo],
   );
 
+  // 성능 최적화: useCallback으로 메모이제이션
+  // 이유: 이 함수를 자식 컴포넌트(CourseCard)의 addNextCourse prop으로 전달
+  // 함수가 매 렌더링마다 새로 생성되면 자식 컴포넌트가 불필요하게 리렌더링됨
   // 코스 추가
   const addNextCourse = useCallback(() => {
     setCourseInfo((prev) => {

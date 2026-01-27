@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import updateScore from "@/apis/user/updateScore";
 import { QuizStatus } from "@/app/quiz/page";
@@ -20,6 +21,8 @@ interface Props {
 
 const Result = ({ status, setStatus, explanation }: Props) => {
   const router = useRouter();
+  // React Query 캐시 무효화를 위한 queryClient
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [hasSeenExplanation, setHasSeenExplanation] = useState(false);
 
@@ -41,6 +44,11 @@ const Result = ({ status, setStatus, explanation }: Props) => {
       setHasSeenExplanation(true);
 
       await updateScore(SCORE.HAS_SEEN_EXPLANATION, "해설 확인");
+      // mutation 후 관련 캐시 무효화하여 최신 데이터 반영
+      // profile: 사용자 점수 갱신
+      // reward: 보상 내역 갱신
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["reward"] });
       setShowModal(true);
     }
   };

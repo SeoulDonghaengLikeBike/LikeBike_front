@@ -24,13 +24,15 @@ const NewsMain = () => {
     return data.reverse() as NewsItem[];
   };
 
-  // react query를 사용하여 뉴스 데이터를 가져옴
+  // 성능 최적화: React Query로 뉴스 데이터 가져오기
+  // BaseLayout의 defaultOptions으로 staleTime, refetchOnWindowFocus 등 설정됨
   const { data: news, isLoading } = useQuery<NewsItem[] | undefined>({
     queryKey: ["news"],
     queryFn: getNewsFromNotion,
   });
 
-  console.log("news", news);
+  // 성능 최적화: console.log 제거
+  // 이유: 콘솔 출력은 개발 시에만 사용하고, 프로덕션에서는 성능 저하 원인이 됨
 
   const settings = {
     dots: true,

@@ -12,11 +12,12 @@ const BikeLogList = () => {
   const { data } = useQuery<IBikeLog[]>({
     queryKey: ["bikeLogs"],
     queryFn: getBikeLog,
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false, // 창 포커스 시 불필요한 요청 방지
+    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지 (BaseLayout의 defaultOptions 적용됨)
   });
 
-  console.log("BikeLogList data:", data);
+  // 성능 최적화: console.log 제거
+  // 이유: 콘솔 출력은 개발 시에만 사용하고, 프로덕션에서는 성능 저하 원인이 됨
 
   return (
     <div className="flex flex-col gap-4">
