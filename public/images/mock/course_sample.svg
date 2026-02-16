@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#fff3e0"/>
+  <path d="M 50 250 Q 150 100 200 180 Q 250 260 350 80" fill="none" stroke="#ff9800" stroke-width="4" stroke-dasharray="10,5"/>
+  <circle cx="50" cy="250" r="8" fill="#4caf50"/>
+  <circle cx="350" cy="80" r="8" fill="#f44336"/>
+  <text x="200" y="40" font-family="sans-serif" font-size="18" fill="#e65100" text-anchor="middle">코스 샘플</text>
+</svg>

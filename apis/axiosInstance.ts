@@ -3,9 +3,13 @@ import axios from "axios";
 import { ACCESS_TOKEN } from "@/constant/storageName";
 
 import { refreshAccessToken } from "./user/refreshToken";
+import { mockAdapter } from "@/mocks/mockAdapter";
+
+const isMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
 export const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: isMock ? "" : process.env.NEXT_PUBLIC_API_URL,
+  ...(isMock ? { adapter: mockAdapter } : {}),
 });
 
 axiosInstance.interceptors.request.use(

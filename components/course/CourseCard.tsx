@@ -35,7 +35,7 @@ const CourseCard = ({
   removeCourse,
   addNextCourse,
   readOnly = false,
-}: ICourseCardProps) {
+}: ICourseCardProps) => {
   const router = useRouter();
 
   const onChangeText = (s: string) => {

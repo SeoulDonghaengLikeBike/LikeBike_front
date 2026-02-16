@@ -12,6 +12,37 @@ export interface NewsItem {
 }
 
 export async function GET() {
+  // Mock 모드이거나 Notion 키가 없으면 목업 데이터 반환
+  if (
+    process.env.NEXT_PUBLIC_USE_MOCK === "true" ||
+    !process.env.NOTION_SECRET_KEY
+  ) {
+    const mockNews: NewsItem[] = [
+      {
+        title: "서울시 자전거 도로 확충 계획 발표",
+        url: "#",
+        thumbnail: null,
+        createdTime: new Date(Date.now() - 86400000).toISOString(),
+        id: "news-1",
+      },
+      {
+        title: "한강 자전거길 야간 조명 개선 완료",
+        url: "#",
+        thumbnail: null,
+        createdTime: new Date(Date.now() - 86400000 * 3).toISOString(),
+        id: "news-2",
+      },
+      {
+        title: "봄철 자전거 안전 수칙 안내",
+        url: "#",
+        thumbnail: null,
+        createdTime: new Date(Date.now() - 86400000 * 5).toISOString(),
+        id: "news-3",
+      },
+    ];
+    return NextResponse.json(mockNews, { status: 200 });
+  }
+
   try {
     const response = await fetch(PATH, {
       method: "POST",

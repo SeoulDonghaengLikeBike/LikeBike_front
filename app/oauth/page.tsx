@@ -6,9 +6,18 @@ import { useEffect } from "react";
 
 import { ACCESS_TOKEN } from "@/constant/storageName";
 
+const isMock = process.env.NEXT_PUBLIC_USE_MOCK === "true";
+
 const OAuthPage = () => {
   const router = useRouter();
   const getCode = async () => {
+    // Mock 모드에서는 바로 토큰 설정
+    if (isMock) {
+      localStorage.setItem(ACCESS_TOKEN, "mock-access-token-demo");
+      router.replace("/");
+      return;
+    }
+
     const code = new URLSearchParams(window.location.search).get("code");
 
     // 서버에 code 보내기
